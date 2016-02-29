@@ -29,16 +29,17 @@ function outSentence = preprocess( inSentence, language )
   outSentence = inSentence;
 
   % perform language-agnostic changes
-  % TODO: your code here
-  %    e.g., outSentence = regexprep( outSentence, 'TODO', 'TODO');
-
+  outSentence = regexprep( outSentence, '(\w+)(\,|\.|\;|\<|\>|\=|\?)', '$1 $2');
+  outSentence = regexprep( outSentence, '([\<|\>|\=])(\w+)', '$1 $2');
+  outSentence = regexprep( outSentence, '([\<|\>|\=])(\w+)', '$1 $2');
+  outSentence = regexprep( outSentence, '(''|")(\w+)(''|")', '$1 $2 $3');
   switch language
    case 'e'
     % TODO: your code here
 
    case 'f'
-    % TODO: your code here
-
+    outSentence = regexprep( outSentence, '(l|qu|j|t)''(\w+)', 'l'' $1');
+    outSentence = regexprep( outSentence, '(\w+)''(on|il)', '$1'' $2');
   end
 
   % change unpleasant characters to codes that can be keys in dictionaries
