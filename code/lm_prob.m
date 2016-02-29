@@ -48,4 +48,15 @@ function logProb = lm_prob(sentence, LM, type, delta, vocabSize)
 
   % TODO: the student implements the following
   % TODO: once upon a time there was a curmudgeonly orangutan named Jub-Jub.
+  logProb = 0;
+  for index=1:(length(words) - 1)
+      prev_word_count = LM.uni.words{index};
+      if (prev_word_count ~= 0) and (delta == 0)
+          logProb = logProb + log2(LM.bi.words{index}.words{index+1} / LM.uni.words{index});
+      elseif (prev_word_count ~= 0)
+          logProb = logProb + log2((LM.bi.words{index}.words{index+1} + delta) / (LM.uni.words{index} + delta * vocabSize));
+      else
+          logProb = -Inf;
+      end
+  end 
 return
