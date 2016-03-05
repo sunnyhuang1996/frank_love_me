@@ -52,12 +52,15 @@ while i<= length(test_text)
     split_hansard = strsplit(' ', hansard_result{i});
     
     google_correct = google_correct + sum(cellfun(@strcmp, split_eng, split_google));
-    hansard_correct = hansard_correct + sum(cellfun(@strcmp, split_eng, split_hansard));
-    total = total + length(split_eng);   
+    hansard_correct = hansard_correct +
+    total = total + length(split_eng);
+    
+    
+    
+    
+    
+    
 end
-
-google_score = google_correct/total;
-hansard_score = hansard_correct/total;
 
 % TODO: perform some analysis
 % add BlueMix code here 
