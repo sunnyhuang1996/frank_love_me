@@ -36,7 +36,7 @@ function AM = align_ibm1(trainDir, numSentences, maxIter, fn_AM)
   % Read in the training data
   [eng, fre] = read_hansard(trainDir, numSentences);
   % Initialize AM uniformly 
-  %AM = initialize(eng, fre);
+  AM = initialize(eng, fre);
 
   % Iterate between E and M steps
   %for iter=1:maxIter,
@@ -54,7 +54,7 @@ function AM = align_ibm1(trainDir, numSentences, maxIter, fn_AM)
 
 % --------------------------------------------------------------------------------
 % 
-%  Support functions
+%  Support functiontrainDir, numSentences, maxIter, fn_AMs
 %
 % --------------------------------------------------------------------------------
 
@@ -73,7 +73,7 @@ function [eng, fre] = read_hansard(mydir, numSentences)
 %
     eng = {};
     fre = {};
-
+    
     E_file_list = dir([mydir, '*.e']);
     line_counter = 1;
 
@@ -83,22 +83,26 @@ function [eng, fre] = read_hansard(mydir, numSentences)
         fre_file_name = strrep(eng_file_name, '.e', '.f');
         fre_file = fopen([mydir, fre_file_name]);
         eng_file = fopen([mydir, eng_file_name]);
-    
+
         while (~feof(eng_file)) && (line_counter <= numSentences)
             curr_eng_line = fgets(eng_file);
             eng{line_counter} = {strsplit(' ', preprocess(curr_eng_line, 'e'))};
             curr_fre_line = fgets(fre_file);
             fre{line_counter} = {strsplit(' ', preprocess(curr_fre_line, 'f'))};
             line_counter = line_counter + 1;
-        
         end
     
         if (line_counter > numSentences)
+            fclose(eng_file);
+            fclose(fre_file);
             break
         end
+        
+        fclose(eng_file);
+        fclose(fre_file);
+        
     end
-    fclose(eng_file);
-    fclose(fre_file);
+
 end
 
 
@@ -108,23 +112,37 @@ function AM = initialize(eng, fre)
 % Initialize alignment model uniformly.
 % Only set non-zero probabilities where word pairs appear in corresponding sentences.
 %
-    AM = {}; % AM.(english_word).(foreign_word)
-
-    AM.SENTSTART.SENTSTART = 1;
-    AM.SENTEND.SENTEND = 1;
+    AM = struct(); % AM.(english_word).(foreign_word)
+    storage = struct();
     
     for line_index=1:length(eng)
-        for element_index=1:length(eng{line_index})
-            if 
-                AM.eng{line_index}{element_index} = struct();
 
-                  
+        for element_index=1:length(eng{line_index})
+            if  ~isfield(AM, eng{line_index}{element_index})
+               
+                AM.eng{line_index}{element_index} = struct();
+                storage.eng{line_index}{element_index} = {};
             end  
+            storage.eng{line_index}{element_index} = [storage.eng{line_index}{element_index}, fre{line_index}];
+            
+        end
+        
+    end
+    
+    eng_words = fieldnames(storage); 
+    for i = 1:numel(eng_words)
+        
+        [fre_word, ~, label] = unique(storage.(eng_words{i}));
+        count = sum(bsxfun(@eq, label(:), 1:max(label)));
+        for index = 1:length(fre_word)
+            AM.eng_words{i}.word{index} = count{index} / length(storage.eng_words{i});
         end
     end
     
-    for line_index=1:length(fre)
-        for element_index=1:length()
+    AM.SENTSTART.SENTSTART = 1;
+    AM.SENTEND.SENTEND = 1;
+    
+    
 
 end
 
