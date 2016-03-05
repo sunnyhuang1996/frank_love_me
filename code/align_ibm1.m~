@@ -117,7 +117,10 @@ function AM = initialize(eng, fre)
         for element_index=1:length(eng{line_index})
             if 
                 AM.eng{line_index}{element_index} = struct();
-
+                
+                
+                
+                
                   
             end  
         end
