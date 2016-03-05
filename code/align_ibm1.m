@@ -113,6 +113,18 @@ function AM = initialize(eng, fre)
     AM.SENTSTART.SENTSTART = 1;
     AM.SENTEND.SENTEND = 1;
     
+    for line_index=1:length(eng)
+        for element_index=1:length(eng{line_index})
+            if 
+                AM.eng{line_index}{element_index} = struct();
+
+                  
+            end  
+        end
+    end
+    
+    for line_index=1:length(fre)
+        for element_index=1:length()
 
 end
 
