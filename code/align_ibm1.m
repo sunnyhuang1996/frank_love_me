@@ -35,16 +35,17 @@ function AM = align_ibm1(trainDir, numSentences, maxIter, fn_AM)
   
   % Read in the training data
   [eng, fre] = read_hansard(trainDir, numSentences);
+
   % Initialize AM uniformly 
   AM = initialize(eng, fre);
 
   % Iterate between E and M steps
-  %for iter=1:maxIter,
-  %  AM = em_step(AM, eng, fre);
-  %end
+  for iter=1:maxIter,
+      AM = em_step(AM, eng, fre);
+  end
 
   % Save the alignment model
-  %save( fn_AM, 'AM', '-mat'); 
+  save( fn_AM, 'AM', '-mat'); 
 
   end
 
@@ -86,9 +87,9 @@ function [eng, fre] = read_hansard(mydir, numSentences)
 
         while (~feof(eng_file)) && (line_counter <= numSentences)
             curr_eng_line = fgets(eng_file);
-            eng{line_counter} = {strsplit(' ', preprocess(curr_eng_line, 'e'))};
+            eng{line_counter} = strsplit(' ', preprocess(curr_eng_line, 'e'));
             curr_fre_line = fgets(fre_file);
-            fre{line_counter} = {strsplit(' ', preprocess(curr_fre_line, 'f'))};
+            fre{line_counter} = strsplit(' ', preprocess(curr_fre_line, 'f'));
             line_counter = line_counter + 1;
         end
     
@@ -114,44 +115,90 @@ function AM = initialize(eng, fre)
 %
     AM = struct(); % AM.(english_word).(foreign_word)
     storage = struct();
-    
+
     for line_index=1:length(eng)
 
         for element_index=1:length(eng{line_index})
             if  ~isfield(AM, eng{line_index}{element_index})
                
-                AM.eng{line_index}{element_index} = struct();
-                storage.eng{line_index}{element_index} = {};
+                AM.(eng{line_index}{element_index}) = struct();
+                storage.(eng{line_index}{element_index}) = {};
             end  
-            storage.eng{line_index}{element_index} = [storage.eng{line_index}{element_index}, fre{line_index}];
-            
+            storage.(eng{line_index}{element_index}) = [storage.(eng{line_index}{element_index}), fre{line_index}];
         end
         
     end
     
     eng_words = fieldnames(storage); 
+
     for i = 1:numel(eng_words)
-        
-        [fre_word, ~, label] = unique(storage.(eng_words{i}));
-        count = sum(bsxfun(@eq, label(:), 1:max(label)));
+        [fre_word] = unique(storage.(eng_words{i}));
         for index = 1:length(fre_word)
-            AM.eng_words{i}.word{index} = count{index} / length(storage.eng_words{i});
+            AM.(eng_words{i}).(fre_word{index}) = 1 / length(fre_word);
         end
     end
     
-    AM.SENTSTART.SENTSTART = 1;
-    AM.SENTEND.SENTEND = 1;
+    % force SENTSTART, SENTEND
+    % AM.SENTSTART = struct();
+    % AM.SENTEND = struct();
     
+    % AM.SENTSTART.SENTSTART = 1;
+    % AM.SENTEND.SENTEND = 1;
     
-
+    %for i=1:length(eng_words)
+    %    disp(eng_words{i})
+    %    disp(AM.(eng_words{i}))
+    %end
 end
 
 function t = em_step(t, eng, fre)
 % 
 % One step in the EM algorithm.
 %
+  tcount = struct();
+  total = struct();
+  for line_index = 1:length(eng)
+      [uni_fre, ~, lab_fre] = unique(fre{line_index});
+      fre_count = sum(bsxfun(@eq, lab_fre(:), 1:max(lab_fre)));
+      
+      [uni_eng, ~, lab_eng] = unique(eng{line_index});
+      eng_count = sum(bsxfun(@eq, lab_fre(:), 1:max(lab_eng)));
+      
+      for fre_index = 1:length(uni_fre)
+          fre_word_count = fre_count(fre_index);
+          denom_c  = 0;
+          for eng_index = 1:length(uni_eng)
+              %disp(uni_eng{eng_index})
+              %disp(uni_fre{fre_index})
+              denom_c = denom_c + t.(uni_eng{eng_index}).(uni_fre{fre_index}) * fre_word_count;
+              if ~isfield(uni_eng{eng_index}, tcount)
+                  tcount.(uni_eng{eng_index}) = struct();
+              end
+              if ~isfield(uni_eng{eng_index}, total)
+                  total.(uni_eng{eng_index}) = 0;
+              end
+          end
+
+          for eng_index = 1:length(uni_eng)
+              eng_word_count = eng_count(eng_index);
+              if ~isfield(uni_fre{fre_index}, tcount.(uni_eng{eng_index}))
+                  tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) = 0;
+              end
+              tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) = tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) + t.(uni_eng{eng_index}).(uni_fre{fre_index})  * fre_word_count  * eng_word_count  / denom_c;
+              total.(uni_eng{eng_index}) =  total.(uni_eng{eng_index}) + t.(uni_eng{eng_index}).(uni_fre{fre_index}) * fre_word_count  * eng_word_count  / denom_c;
+          end
+      end
   
-  % TODO: your code goes here
+     
+  end
+  
+ for eng_index = 1:length(total)
+    for fre_index = 1:length(uni_fre)
+        if isfield(uni_fre{fre_index}, t.(uni_eng{eng_index}))
+            t.(uni_eng{eng_index}).(uni_fre{fre_index}) =  tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) / total.(uni_eng{eng_index}); 
+    
+        end
+    end
+ end
+ 
 end
-
-
