@@ -33,6 +33,7 @@ function AM = align_ibm1(trainDir, numSentences, maxIter, fn_AM)
   
   AM = struct();
   
+  
   % Read in the training data
   [eng, fre] = read_hansard(trainDir, numSentences);
 
@@ -40,7 +41,8 @@ function AM = align_ibm1(trainDir, numSentences, maxIter, fn_AM)
   AM = initialize(eng, fre);
 
   % Iterate between E and M steps
-  for iter=1:maxIter,
+  for iter=1:maxIter
+      
       AM = em_step(AM, eng, fre);
   end
 
@@ -77,7 +79,6 @@ function [eng, fre] = read_hansard(mydir, numSentences)
     
     E_file_list = dir([mydir, '*.e']);
     line_counter = 1;
-
     for index = 1:length(E_file_list)
     
         eng_file_name = E_file_list(index).name;
@@ -88,8 +89,10 @@ function [eng, fre] = read_hansard(mydir, numSentences)
         while (~feof(eng_file)) && (line_counter <= numSentences)
             curr_eng_line = fgets(eng_file);
             eng{line_counter} = strsplit(' ', preprocess(curr_eng_line, 'e'));
+            %disp(eng{line_counter})
             curr_fre_line = fgets(fre_file);
             fre{line_counter} = strsplit(' ', preprocess(curr_fre_line, 'f'));
+            %disp(fre{line_counter})
             line_counter = line_counter + 1;
         end
     
@@ -123,7 +126,7 @@ function AM = initialize(eng, fre)
                
                 AM.(eng{line_index}{element_index}) = struct();
                 storage.(eng{line_index}{element_index}) = {};
-            end  
+            end 
             storage.(eng{line_index}{element_index}) = [storage.(eng{line_index}{element_index}), fre{line_index}];
         end
         
@@ -139,12 +142,13 @@ function AM = initialize(eng, fre)
     end
     
     % force SENTSTART, SENTEND
-    % AM.SENTSTART = struct();
-    % AM.SENTEND = struct();
+    AM.SENTSTART = struct();
+    AM.SENTEND = struct();
     
-    % AM.SENTSTART.SENTSTART = 1;
-    % AM.SENTEND.SENTEND = 1;
+    AM.SENTSTART.SENTSTART = 1;
+    AM.SENTEND.SENTEND = 1;
     
+
     %for i=1:length(eng_words)
     %    disp(eng_words{i})
     %    disp(AM.(eng_words{i}))
@@ -158,47 +162,58 @@ function t = em_step(t, eng, fre)
   tcount = struct();
   total = struct();
   for line_index = 1:length(eng)
+      % get count of each unique english/french word in this line
       [uni_fre, ~, lab_fre] = unique(fre{line_index});
       fre_count = sum(bsxfun(@eq, lab_fre(:), 1:max(lab_fre)));
-      
+
       [uni_eng, ~, lab_eng] = unique(eng{line_index});
       eng_count = sum(bsxfun(@eq, lab_fre(:), 1:max(lab_eng)));
-      
+
       for fre_index = 1:length(uni_fre)
           fre_word_count = fre_count(fre_index);
           denom_c  = 0;
           for eng_index = 1:length(uni_eng)
-              %disp(uni_eng{eng_index})
-              %disp(uni_fre{fre_index})
-              denom_c = denom_c + t.(uni_eng{eng_index}).(uni_fre{fre_index}) * fre_word_count;
-              if ~isfield(uni_eng{eng_index}, tcount)
-                  tcount.(uni_eng{eng_index}) = struct();
+
+              if isfield(t, uni_eng{eng_index}) && isfield(t.(uni_eng{eng_index}), uni_fre{fre_index}) 
+                 denom_c = denom_c + t.(uni_eng{eng_index}).(uni_fre{fre_index}) * fre_word_count;
               end
-              if ~isfield(uni_eng{eng_index}, total)
-                  total.(uni_eng{eng_index}) = 0;
-              end
+              % properly initialise tcount and total for each unique word e
+              tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) = 0;
+              total.(uni_eng{eng_index}) = 0;
           end
 
           for eng_index = 1:length(uni_eng)
               eng_word_count = eng_count(eng_index);
-              if ~isfield(uni_fre{fre_index}, tcount.(uni_eng{eng_index}))
-                  tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) = 0;
+              if isfield(t, uni_eng{eng_index}) && isfield(t.(uni_eng{eng_index}), uni_fre{fre_index})
+                  disp('hahahahhahahahha')
+                 tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) = tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) + ((t.(uni_eng{eng_index}).(uni_fre{fre_index})  * fre_word_count  * eng_word_count)  / denom_c);
+                 total.(uni_eng{eng_index}) =  total.(uni_eng{eng_index}) + t.(uni_eng{eng_index}).(uni_fre{fre_index}) * fre_word_count  * eng_word_count  / denom_c;
               end
-              tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) = tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) + t.(uni_eng{eng_index}).(uni_fre{fre_index})  * fre_word_count  * eng_word_count  / denom_c;
-              total.(uni_eng{eng_index}) =  total.(uni_eng{eng_index}) + t.(uni_eng{eng_index}).(uni_fre{fre_index}) * fre_word_count  * eng_word_count  / denom_c;
           end
       end
   
      
   end
   
- for eng_index = 1:length(total)
-    for fre_index = 1:length(uni_fre)
-        if isfield(uni_fre{fre_index}, t.(uni_eng{eng_index}))
-            t.(uni_eng{eng_index}).(uni_fre{fre_index}) =  tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) / total.(uni_eng{eng_index}); 
-    
-        end
+ fields = fieldnames(total); 
+
+ for eng_index = 1:numel(fields)
+    nest_fields = fieldnames(t.(fields{eng_index})); 
+    for fre_index = 1:numel(nest_fields)
+        disp(fields{eng_index})
+        disp(nest_fields{fre_index})
+        disp(tcount.(fields{eng_index}).(nest_fields{fre_index}))
+        disp(total.(fields{eng_index}))
+        disp('-------------------------------')
+        t.(fields{eng_index}).(nest_fields{fre_index}) =  tcount.(fields{eng_index}).(nest_fields{fre_index}) / total.(fields{eng_index}); 
     end
  end
+ 
+ %display = fieldnames(t);
+ %disp(display)
+ %for i=1:numel(display)
+ %    disp(display{i})
+ %    disp(t.(display{i}))
+ %end
  
 end
