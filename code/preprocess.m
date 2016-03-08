@@ -28,10 +28,11 @@ function outSentence = preprocess( inSentence, language )
   % initialize outSentence
   outSentence = inSentence;
   % perform language-agnostic changes
-  outSentence = regexprep( outSentence, '(\w+)([\,|\.|\;|\<|\>|\=|\?])', '$1 $2');
-  outSentence = regexprep( outSentence, '([\<|\>|\+|\=])(\w+)', '$1 $2');
-  outSentence = regexprep( outSentence, '([\<|\>|\+|\=])(\w+)', '$1 $2');
+  outSentence = regexprep( outSentence, '(\w+)([\,|\.|\;|\<|\>|\=|\?|!])', '$1 $2');
   outSentence = regexprep( outSentence, '\((\w*)\-(\w*)\)', '\($1 \- $2\)');
+  outSentence = regexprep( outSentence, '([\<|\>|\+|\=|\(])(\w+)', '$1 $2');
+  outSentence = regexprep( outSentence, '(\w+)([\<|\>|\+|\=|\)])', '$1 $2');
+
   outSentence = regexprep( outSentence, '(''|")(\w+)(''|")', '$1 $2 $3');
   switch language
    case 'e'
