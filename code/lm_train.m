@@ -54,30 +54,30 @@ for iFile=1:length(DD)
     for n=1:length(words)-1
         % is not exist key of current word, then create
         if ~isfield(LM.uni, words{n})
-            LM.uni(words{n}) = 1;
+            LM.uni.(words{n}) = 1;
         % if exist, count++
         else
-            LM.uni(words{n}) = LM.uni(words{n})+1;
+            LM.uni.(words{n}) = (LM.uni.(words{n}))+1;
         end
         
         % for bigram
         if ~isfield(LM.bi, words{n})
-            LM.bi(words{n}) = struct();
-            LM.bi.words{n}(words{n+1}) = 1;
+            LM.bi.(words{n}) = struct();
+            LM.bi.(words{n}).(words{n+1}) = 1;
         else
-            if ~idfield(LM.bi.words{n}, words{n+1})
-                LM.bi.words{n}(words{n+1}) = 1;
+            if ~isfield(LM.bi.(words{n}), words{n+1})
+                LM.bi.(words{n}).(words{n+1}) = 1;
             else
-                LM.bi.words{n}(words{n+1}) = LM.bi.words{n}(words{n+1})+1;
+                LM.bi.(words{n}).(words{n+1}) = (LM.bi.(words{n}).(words{n+1}))+1;
             end
         end  
     end
     
     % add sentendmark to unigram
     if ~isfield(LM.uni, SENTENDMARK)
-        LM.uni(SENTENDMARK) = 1;
+        LM.uni.(SENTENDMARK) = 1;
     else
-        LM.uni(SENTENDMARK) = LM.uni(SENTENDMARK)+1;
+        LM.uni.(SENTENDMARK) = LM.uni.(SENTENDMARK)+1;
     end
    
   end
