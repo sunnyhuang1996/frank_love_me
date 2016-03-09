@@ -142,6 +142,7 @@ function AM = initialize(eng, fre)
     end
     
     % force SENTSTART, SENTEND
+    
     AM.SENTSTART = struct();
     AM.SENTEND = struct();
     
@@ -163,11 +164,12 @@ function t = em_step(t, eng, fre)
   total = struct();
   for line_index = 1:length(eng)
       % get count of each unique english/french word in this line
-      [uni_fre, ~, lab_fre] = unique(fre{line_index});
-      fre_count = sum(bsxfun(@eq, lab_fre(:), 1:max(lab_fre)));
-
-      [uni_eng, ~, lab_eng] = unique(eng{line_index});
-      eng_count = sum(bsxfun(@eq, lab_fre(:), 1:max(lab_eng)));
+      [uni_fre, i_fre, j_fre] = unique(fre{line_index});
+      %fre_count = sum(bsxfun(@eq, lab_fre(:), 1:max(lab_fre)));
+      fre_count = hist(j_fre, 1:max(j_fre));
+      [uni_eng, i_eng, j_eng] = unique(eng{line_index});
+      %eng_count = sum(bsxfun(@eq, lab_fre(:), 1:max(lab_eng)));
+      eng_count = hist(j_eng, 1:max(j_eng));
 
       for fre_index = 1:length(uni_fre)
           fre_word_count = fre_count(fre_index);
@@ -175,18 +177,32 @@ function t = em_step(t, eng, fre)
           for eng_index = 1:length(uni_eng)
 
               if isfield(t, uni_eng{eng_index}) && isfield(t.(uni_eng{eng_index}), uni_fre{fre_index}) 
-                 denom_c = denom_c + t.(uni_eng{eng_index}).(uni_fre{fre_index}) * fre_word_count;
+                 denom_c = denom_c + (t.(uni_eng{eng_index}).(uni_fre{fre_index}) * fre_word_count);
               end
               % properly initialise tcount and total for each unique word e
-              tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) = 0;
-              total.(uni_eng{eng_index}) = 0;
+              if ~isfield(tcount, uni_eng{eng_index}) || ~isfield(tcount.(uni_eng{eng_index}), uni_fre{fre_index})
+                 tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) = 0;
+              end
+              if ~isfield(total, uni_eng{eng_index})
+                total.(uni_eng{eng_index}) = 0;
+              end
           end
 
           for eng_index = 1:length(uni_eng)
               eng_word_count = eng_count(eng_index);
+              
               if isfield(t, uni_eng{eng_index}) && isfield(t.(uni_eng{eng_index}), uni_fre{fre_index})
+
                  tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) = tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) + ((t.(uni_eng{eng_index}).(uni_fre{fre_index})  * fre_word_count  * eng_word_count)  / denom_c);
-                 total.(uni_eng{eng_index}) =  total.(uni_eng{eng_index}) + t.(uni_eng{eng_index}).(uni_fre{fre_index}) * fre_word_count  * eng_word_count  / denom_c;
+                 total.(uni_eng{eng_index}) =  total.(uni_eng{eng_index}) + ((t.(uni_eng{eng_index}).(uni_fre{fre_index}) * fre_word_count  * eng_word_count)  / denom_c);
+                 if strcmp('third', uni_eng{eng_index})
+                    disp(uni_eng)
+                    %disp(eng_count)
+                    disp(uni_fre)
+                    disp(fre_count)
+                    disp(((t.(uni_eng{eng_index}).(uni_fre{fre_index}) * fre_word_count  * eng_word_count)))
+                    disp(total.(uni_eng{eng_index}))
+                 end
               end
           end
       end
@@ -199,11 +215,11 @@ function t = em_step(t, eng, fre)
  for eng_index = 1:numel(fields)
     nest_fields = fieldnames(t.(fields{eng_index})); 
     for fre_index = 1:numel(nest_fields)
-        disp(fields{eng_index})
-        disp(nest_fields{fre_index})
-        disp(tcount.(fields{eng_index}).(nest_fields{fre_index}))
-        disp(total.(fields{eng_index}))
-        disp('-------------------------------')
+        %disp(fields{eng_index})
+        %disp(nest_fields{fre_index})
+        %disp(tcount.(fields{eng_index}).(nest_fields{fre_index}))
+        %disp(total.(fields{eng_index}))
+        %disp('-------------------------------')
         t.(fields{eng_index}).(nest_fields{fre_index}) =  tcount.(fields{eng_index}).(nest_fields{fre_index}) / total.(fields{eng_index}); 
     end
  end
