@@ -39,6 +39,8 @@ DD = dir( [ dataDir, filesep, '*', language] );
 
 disp([ dataDir, filesep, '.*', language] );
 
+vacSize=0;
+
 for iFile=1:length(DD)
 
   lines = textread([dataDir, filesep, DD(iFile).name], '%s','delimiter','\n');
@@ -47,6 +49,7 @@ for iFile=1:length(DD)
 
     processedLine =  preprocess(lines{l}, language);
     words = strsplit(' ', processedLine );
+    vacSize = vacSize + length(words);
     
     % TODO: THE STUDENT IMPLEMENTS THE FOLLOWING
     
@@ -83,4 +86,5 @@ for iFile=1:length(DD)
   end
 end
 
+disp(vacSize)
 save( fn_LM, 'LM', '-mat'); 
