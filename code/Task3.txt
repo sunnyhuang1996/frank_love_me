@@ -1,11 +1,11 @@
 In this task, we tried 4 delta (1, 0.1, 0.01, 0.001). And the result is as following:
 
         English      French
-MLE     13.9672      13.2123
-1       69.5019      82.5669
-0.1     27.3848      29.4916
-0.01    17.1304      17.1648
-0.001   14.5580      14.0004
+MLE     
+1       156.2282     182.3293
+0.1     68.3490      72.7569
+0.01    46.1262      45.5247
+0.001   42.8423      40.0705
 
 As we can see, perplexity is smallest by MLE method for both languages. And perplexity is increasing when delta get larger. We think this is because that add-one smoothing method is allocating some probability mass of seen events to unseen events. And larger delta means more propability mass getting reallocated, which causes more bias of model and more perplexity. 
 
