@@ -30,7 +30,7 @@ function reLMuni = helper(wordLMuni, numLMuni)
             reLMuni.(unifields{i}) = wordLMuni.(unifields{i});
         end
     end
-    %reLMuni.apperance0time = 1;
+    reLMuni.apperance0time = 
 end
 
 % unifields = fieldnames(wordLM.uni);

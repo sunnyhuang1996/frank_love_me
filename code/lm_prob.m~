@@ -47,8 +47,8 @@ function logProb = lm_prob(sentence, LM, type, delta, vocabSize)
   words = strsplit(' ', sentence);
 
   % TODO: the student implements the following
-	logProb = 0;
-	for index=1:(length(words) - 1)
+  logProb = 0;
+  for index=1:(length(words) - 1)
       if (isfield(LM.uni, (words{index})))
           if (isfield(LM.bi.(words{index}), (words{index+1})))
               logProb = logProb + log2((LM.bi.(words{index}).(words{index+1}) + delta) / (LM.uni.(words{index}) + delta * vocabSize));
