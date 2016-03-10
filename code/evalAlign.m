@@ -10,8 +10,8 @@ testDir      = '/u/cs401/A2_SMT/data/Hansard/Testing/Task5';
 fn_LME       = '~/lmtraineng';
 fn_LMF       = '~/lmtrainfre';
 lm_type      = '';
-%delta        = TODO; %(float) smoothing parameter where 0<delta<=1 
-%vocabSize    = TODO; %(integer) the number of words in the vocabulary
+%delta        = 0.00001; %(float) smoothing parameter where 0<delta<=1 
+%vocabSize    = 35454; %(integer) the number of words in the vocabulary
 %numSentences = 1000;% 10000, 15000, 30000}; %(integer) The maximum number of training sentences to consider.
 AMFEDir      = '~/AMFE';
 maxIter      = 10;
@@ -56,9 +56,9 @@ end
 google_result = upload(strcat(testDir, '.google.e'), 'e');
 hansard_result = upload(strcat(testDir, '.e'), 'e');
 
-google_correct = 0;
-hansard_correct = 0;
-total = 0;
+correct = zeros(25);
+total = zeros(25);
+accuracy = zeros(25);
 
 i=1;
 while i<= length(test_text)
@@ -67,17 +67,23 @@ while i<= length(test_text)
     eng = decode(fre, LME, AMFE, 'smooth', delta, vocabSize);
     
     split_eng = strsplit(' ', eng);
-    split_google = strsplit(' ', google_result{i});
-    split_hansard = strsplit(' ', hansard_result{i});
+    %split_google = strsplit(' ', google_result{i});
+    %split_hansard = strsplit(' ', hansard_result{i});
     
-    google_correct = google_correct + sum(cellfun(@strcmp, split_eng, split_google));
-    hansard_correct = hansard_correct + sum(cellfun(@strcmp, split_eng, split_hansard));
-    total = total + length(split_eng);   
+    for j=1:length(split_eng-p+1)
+        if p==1
+            target = split_eng{j};
+        elseif p==2
+            target = strcat(split_eng{j}, ' ', split_eng{j+1});
+        elseif p==3
+            target = strcat(split_eng{j}, ' ', split_eng{j+1}, ' ', split_eng{j+2});
+        end
+        
+        if (~isempty(strfind(google_result{i}, target))) || (~isempty(strfind(hansard_result{i}, target))) || (~isempty(strfind(ibm_result{i}, target)))
+            correct(i) = correct(i)+1;
+        end
+    end
+    total(i) = length(split_eng);  
 end
 
-google_score = google_correct/total;
-hansard_score = hansard_correct/total;
-
-% TODO: perform some analysis
-% add BlueMix code here 
-
+accurancy = correct./total;
