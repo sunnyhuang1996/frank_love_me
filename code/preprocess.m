@@ -46,4 +46,7 @@ function outSentence = preprocess( inSentence, language )
   end
   % change unpleasant characters to codes that can be keys in dictionaries
   outSentence = convertSymbols( outSentence );
+<<<<<<< HEAD
   disp(outSentence)
+=======
+>>>>>>> 0e295290640342b7d8b88f4cc67b80bf95f99874

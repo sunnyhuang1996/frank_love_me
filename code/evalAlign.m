@@ -12,27 +12,8 @@ fn_LMF       = '~/lmtrainfre';
 lm_type      = '';
 delta        = 0.1; %(float) smoothing parameter where 0<delta<=1 
 vocabSize    = 35454; %(integer) the number of words in the vocabulary
-numSentences = 30000;% 10000, 15000, 30000}; %(integer) The maximum number of training sentences to consider.
 AMFEDir      = '~/AMFE';
 maxIter      = 10;
-p=1;
-
-%[status, result] = unix('env LD_LIBRARY_PATH='''' curl -u "0011056e-c82a-4dea-8354-c697c607a580":"6izojpCZMrdJ" -X POST -F "text=Dans le monde reel, il n''y a rien de mal a cela." -F "source=fr" -F "target=en" "http://gateway.watsonplatform.net/language-translation/api/v2/translate"')
-
-
-% Train your language models. This is task 2 which makes use of task 1
-%LME = lm_train( trainDir, 'e', fn_LME );
-%LMF = lm_train( trainDir, 'f', fn_LMF );
-
-% Train your alignment model of French, given English 
-%AMFE = align_ibm1(trainDir, numSentences, maxIter, AMFEDir);
-
-% ... TODO: more  build moreeeeeeeeee models
-
-% TODO: a bit more work to grab the English and French sentences. 
-%       You can probably reuse your previous code for this  
-
-%====================== Finishing vuilding model ===================
 
 % upload test french and english data line by line
 
@@ -51,9 +32,6 @@ p=1;
 % end  
 % fclose(fre_file);
 
-% for i=1:length(ibm_translation)
-%     disp(ibm_translation{i})
-% end
 test_text = {};
 fre_file = fopen(strcat(testDir, '.f'));
 i = 1;
@@ -65,10 +43,10 @@ while (~feof(fre_file))
 end
 fclose(fre_file);
 
-
+AMFE_name = {'./am.mat', './am_10K.mat', './am_15K.mat', './am_30K.mat'};
 
 LME = importdata('./modelE.mat');
-AMFE = importdata('./am_30K.mat');
+
 
 google_result = upload(strcat(testDir, '.google.e'), 'e');
 hansard_result = upload(strcat(testDir, '.e'), 'e');
@@ -79,55 +57,60 @@ reference.google_result = google_result;
 reference.hansard_result = hansard_result;
 reference.ibm_result = ibm_result;
 
-% correct = zeros(1, 25);
-% total = zeros(1, 25);
-% accuracy = zeros(1, 25);
-% eng_result = {};
-% 
-% i=1;
-% while i<=length(test_text)
-%     disp(i)
-%     fre = test_text{i};
-%     % Decode the test sentence 'fre'
-%     split_eng = decode2(fre, LME, AMFE, 'smooth', delta, vocabSize);
-%     eng_result{i} = split_eng;
-%     i= i+1;
-% end
-%         
-% i = 1;    
-% while i<= length(test_text)
-%     %split_eng = strsplit(' ', eng);
-%     %split_google = strsplit(' ', google_result{i});
-%     %split_hansard = strsplit(' ', hansard_result{i});
-%     split_eng = eng_result{i};
-%     split_eng = strsplit(' ', split_eng);
-%     for j=1:(length(split_eng)-p+1)
-%         if p==1
-%             target = split_eng{j};
-%             if ismember(target, google_result{i}) || ismember(target, hansard_result{i}) || ismember(target, ibm_result{i})
-%                 correct(i) = correct(i) + 1;
-%             end
-%         else
-%             if p==2
-%                 target = [split_eng{j}, ' ', split_eng{j+1}];
-%                 disp(target)
-%             elseif p==3
-%                 target = [split_eng{j}, ' ', split_eng{j+1}, ' ', split_eng{j+2}];
-%             end
-%             if (~isempty(strfind(google_result{i}, target))) || (~isempty(strfind(hansard_result{i}, target))) || (~isempty(strfind(ibm_result{i}, target)))
-%                 correct(i) = correct(i)+1;
-%             end
-%         end
-%     end
-%     total(i) = length(split_eng);  
-%     i = i+1;
-% end
-% 
-% accuracy = correct./total;
 
+precision = zeros(3, 25, 4);
+min_brevity = Inf(4, 25);
 
-min_brevity = Inf(1,length(eng_result));
+% 4 alignment model in total
+for align_model = 1:length(AMFE_name)
+    correct = zeros(3, 25);
+    total = zeros(3, 25);
+    AMFE = importdata(AMFE_name{align_model});
+    eng_result = {};
 
+    i=1;
+    % 25 test sentences
+    while i<=length(test_text)
+        fre = test_text{i};
+        % Decode the test sentence 'fre'
+        split_eng = decode2(fre, LME, AMFE, 'smooth', delta, vocabSize);
+        eng_result{i} = split_eng;
+        i= i+1;
+    end
+
+    % unigram, bigram, trigram
+    for p =1:3
+
+        i = 1;    
+        while i<= length(test_text)
+            
+            split_eng = eng_result{i};
+            split_eng = strsplit(' ', split_eng);
+            for j=1:(length(split_eng)-p+1)
+                if p==1
+                    target = split_eng{j};
+                    if ismember(target, strsplit(' ', google_result{i})) || ismember(target, strsplit(' ', hansard_result{i})) || ismember(target, strsplit(' ', ibm_result{i}))
+                        correct(p, i) = correct(p, i) + 1;
+                    end
+                else
+                    if p==2
+                        target = [split_eng{j}, ' ', split_eng{j+1}];
+                    elseif p==3
+                        target = [split_eng{j}, ' ', split_eng{j+1}, ' ', split_eng{j+2}];
+                    end
+                    if (~isempty(strfind(google_result{i}, target))) || (~isempty(strfind(hansard_result{i}, target))) || (~isempty(strfind(ibm_result{i}, target)))
+                        correct(p, i) = correct(p, i)+1;
+                    end
+                end
+            end
+            total(p, i) = length(split_eng);  
+            i = i+1;
+        end
+    end
+
+    precision(:, :, align_model) = correct./total;
+
+<<<<<<< HEAD
 for i=1:length(eng_result)
     field = fieldnames(reference);
     for ref_index =1:numel(field)
@@ -135,14 +118,47 @@ for i=1:length(eng_result)
         disp(ref_len)
         if abs(min_brevity(i) - length(eng_result{i})) > abs(length(eng_result{i}) - ref_len)
             min_brevity(i) = ref_len;
+=======
+    for i=1:length(eng_result)
+
+        field = fieldnames(reference);
+        for ref_index =1:numel(field)
+            % exclude SENTSTART SENTEND
+            ref_len =  length(strsplit(' ', reference.(field{ref_index}){i})) - 2;
+            eng_len = length(strsplit(' ', eng_result{i}));
+
+            if abs(min_brevity(align_model, i) - eng_len) > abs(eng_len - ref_len)
+                min_brevity(align_model, i) = ref_len;
+            end
+        end
+        if min_brevity(align_model, i) >= eng_len
+           min_brevity(align_model, i) =  exp(1-(min_brevity(align_model, i) / eng_len));
+        else
+           min_brevity(align_model, i) = 1;
+>>>>>>> 0e295290640342b7d8b88f4cc67b80bf95f99874
         end
     end
-    if min_brevity(i) >= length(eng_result{i})
+    
+end
 
-       min_brevity(i) =  exp(1-(min_brevity(i) / length(eng_result{i})));
-    else
-       min_brevity(i) = 1;
+
+
+bleu = zeros(3, 25, 4);
+
+for align_model =1:4
+    for index = 1:25
+        for n=1:3
+            if n==1
+                bleu(n, index, align_model) = min_brevity(align_model, index) * precision(n, index, align_model);
+            elseif n==2
+                bleu(n, index, align_model) = min_brevity(align_model, index) * (precision(n-1, index, align_model) * precision(n, index, align_model)) ^ (1/n);
+            else
+                bleu(n, index, align_model) = min_brevity(align_model, index) * (precision(n-2, index, align_model) * precision(n-1, index, align_model) * precision(n, index, align_model)) ^ (1/n);
+            end
+            
+        end
+        
     end
 end
 
-disp(min_brevity)
+disp(bleu)
