@@ -31,7 +31,8 @@ for iFile=1:length(DD)
   for l=1:length(lines)
 
     processedLine = preprocess(lines{l}, language);
-    tpp = GTprob(processedLine, LM, type, delta, vocabSize );
+    tpp = lm_prob(processedLine, LM, type, delta, vocabSize );
+    disp(tpp)
     if (tpp > -Inf)   % only consider sentences that have some probability 
       pp = pp + tpp;
       words = strsplit(' ', processedLine);
