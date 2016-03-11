@@ -16,7 +16,7 @@ function logProb = GTprob(sentence, LM, type, delta, vocabSize)
         else
             bicount = 1;
         end
-        logProb = logprob + log2(unicount/bicount);
+        logProb = logProb + log2(unicount/bicount);
     end
     disp(logProb)
 return
