@@ -28,16 +28,12 @@ for i=1:numel(bifields)
     subfields = fieldnames(LM.bi.(bifields{i}));
     for j=1:numel(subfields)
         if ~isfield(cLM.bi.(bifields{i}), strcat('n', num2str(LM.bi.(bifields{i}).(subfields{j}))))
-            cLM.bi.(strcat('n', num2str(LM.bi.(bifields{i}).(subfields{j})))) = 1;
+            cLM.bi.(bifields{i}).(strcat('n', num2str(LM.bi.(bifields{i}).(subfields{j})))) = 1;
+            %disp(num2str(LM.bi.(bifields{i}).(subfields{j})));
         else
-            cLM.bi.(strcat('n', num2str(LM.bi.(bifields{i}).(subfields{j})))) = cLM.bi.(strcat('n', num2str(LM.bi.(bifields{i}).(subfields{j}))))+1;
+            cLM.bi.(bifields{i}).(strcat('n', num2str(LM.bi.(bifields{i}).(subfields{j})))) = cLM.bi.(bifields{i}).(strcat('n', num2str(LM.bi.(bifields{i}).(subfields{j}))))+1;
+            disp(num2str(LM.bi.(bifields{i}).(subfields{j})))
         end
     end
 end
-                
-                
-                
-                
-                
-                
-              
+save('~/countappE.mat', 'cLM', '-mat');
