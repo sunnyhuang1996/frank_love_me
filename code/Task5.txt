@@ -75,4 +75,4 @@ In general, the score is better when p is small and decreses with p enlarging. T
 
 Also, the score increses as the train data size increases, because with larger training data, we can learn more words(unigram) and phrase(bigram and trigram), and increase the probability of frequently-used phrase and lower the probability of non-frequently-used phrase. Thus, we can predict translation better. 
 
-
+We think that in some way, our ibm1 translation is more close to the translation by google and bluemix. Since the Hansard are translated by human, a lot of the metaphors and words are correctly tranlated into English. However, the bluemix, google and ibm1 translations are usually just hard translations word to word by the machine. A lot of the times, they missed the original meaning. So they are similar in a 'wrong' way. (For instance, the 5th sentence in Task5. Translation of both of them is 'The good news is that Canada Post is all ears.' whereas Hansard translation is 'The good news is that Canada Post is listening.') We thus think that if we use only google and bluemix translation as references, the bleu score might be better.
