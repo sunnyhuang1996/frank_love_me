@@ -129,8 +129,6 @@ reference.ibm_result = ibm_result;
 min_brevity = Inf(1,length(eng_result));
 
 for i=1:length(eng_result)
-    disp(length(eng_result{i}))
-    %disp(length(eng_result{i}))
     field = fieldnames(reference);
     for ref_index =1:numel(field)
         ref_len =  length(strsplit(' ', reference.(field{ref_index}){i}));

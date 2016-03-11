@@ -28,7 +28,6 @@ for i=1:numel(bifields)
         
         else
             cLM.bi.(bifields{i}).(strcat('n', num2str(LM.bi.(bifields{i}).(subfields{j})))) = cLM.bi.(bifields{i}).(strcat('n', num2str(LM.bi.(bifields{i}).(subfields{j}))))+1;
-            disp(num2str(LM.bi.(bifields{i}).(subfields{j})))
         end
     end
 end
