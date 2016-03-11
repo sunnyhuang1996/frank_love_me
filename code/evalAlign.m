@@ -47,7 +47,6 @@ AMFE_name = {'./am.mat', './am_10K.mat', './am_15K.mat', './am_30K.mat'};
 
 LME = importdata('./modelE.mat');
 
-
 google_result = upload(strcat(testDir, '.google.e'), 'e');
 hansard_result = upload(strcat(testDir, '.e'), 'e');
 ibm_result = upload('./ibm.e', 'e');
@@ -56,7 +55,6 @@ reference = struct();
 reference.google_result = google_result;
 reference.hansard_result = hansard_result;
 reference.ibm_result = ibm_result;
-
 
 precision = zeros(3, 25, 4);
 min_brevity = Inf(4, 25);

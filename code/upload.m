@@ -2,7 +2,6 @@ function text = upload(file, language)
 text = {};
 
 fid = fopen(file);
-disp(fid);
 line = fgets(fid);
 i = 1;
 
