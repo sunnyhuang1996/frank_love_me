@@ -10,9 +10,9 @@ testDir      = '/u/cs401/A2_SMT/data/Hansard/Testing/Task5';
 fn_LME       = '~/lmtraineng';
 fn_LMF       = '~/lmtrainfre';
 lm_type      = '';
-%delta        = 0.00001; %(float) smoothing parameter where 0<delta<=1 
-%vocabSize    = 35454; %(integer) the number of words in the vocabulary
-%numSentences = 1000;% 10000, 15000, 30000}; %(integer) The maximum number of training sentences to consider.
+delta        = 0.00001; %(float) smoothing parameter where 0<delta<=1 
+vocabSize    = 35454; %(integer) the number of words in the vocabulary
+numSentences = 1000;% 10000, 15000, 30000}; %(integer) The maximum number of training sentences to consider.
 AMFEDir      = '~/AMFE';
 maxIter      = 10;
 
@@ -35,42 +35,53 @@ maxIter      = 10;
 
 % upload test french and english data line by line
 
-test_text = {};
-ibm_translation = {};
+% test_text = {};
+% ibm_translation = {};
+% 
+% fre_file = fopen(strcat(testDir, '.f'));
+% i = 1;
+% 
+% while (~feof(fre_file))
+%     test_text{i} = fgets(fre_file);
+%     test_text{i} = regexprep( test_text{i}, '''', '''''');
+%     curl_command = sprintf('env LD_LIBRARY_PATH='''' curl -u "0011056e-c82a-4dea-8354-c697c607a580":"6izojpCZMrdJ" -X POST -F "text=%s" -F "source=fr" -F "target=en" "https://gateway.watsonplatform.net/language-translation/api/v2/translate"', test_text{i});
+%     [status, ibm_translation{i}] = unix(curl_command);
+%     i = i + 1;
+% end  
+% fclose(fre_file);
 
-fre_file = fopen(strcat(testDir, '.f'));
-i = 1;
+% for i=1:length(ibm_translation)
+%     disp(ibm_translation{i})
+% end
+LME = importdata('~/modelE.mat');
+AMFE = importdata('~/frank_love_me/code/am.mat');
 
-while (~feof(fre_file))
-    test_text{i} = fgets(fre_file);
-    test_text{i} = regexprep( test_text{i}, '''', '''''');
-    curl_command = sprintf('env LD_LIBRARY_PATH='''' curl -u "0011056e-c82a-4dea-8354-c697c607a580":"6izojpCZMrdJ" -X POST -F "text=%s" -F "source=fr" -F "target=en" "https://gateway.watsonplatform.net/language-translation/api/v2/translate"', test_text{i});
-    [status, ibm_translation{i}] = unix(curl_command);
-    i = i + 1;
-end  
-fclose(fre_file);
-
-for i=1:length(ibm_translation)
-    disp(ibm_translation{i})
-end
 google_result = upload(strcat(testDir, '.google.e'), 'e');
 hansard_result = upload(strcat(testDir, '.e'), 'e');
+ibm_result = upload('~/ibm.e', 'e');
 
-correct = zeros(25);
-total = zeros(25);
-accuracy = zeros(25);
+correct = zeros(1, 25);
+total = zeros(1, 25);
+accuracy = zeros(1, 25);
+eng_result = {};
 
 i=1;
-while i<= length(test_text)
+while i<=length(test_text)
+    disp(i)
     fre = test_text{i};
     % Decode the test sentence 'fre'
-    eng = decode(fre, LME, AMFE, 'smooth', delta, vocabSize);
-    
-    split_eng = strsplit(' ', eng);
+    split_eng = decode(fre, LME, AMFE, 'smooth', delta, vocabSize);
+    eng_result{i} = split_eng;
+    i= i+1;
+end
+        
+i = 1;    
+while i<= length(test_text)
+    %split_eng = strsplit(' ', eng);
     %split_google = strsplit(' ', google_result{i});
     %split_hansard = strsplit(' ', hansard_result{i});
-    
-    for j=1:length(split_eng-p+1)
+    split_eng = eng_result{i};
+    for j=1:(length(split_eng)-p+1)
         if p==1
             target = split_eng{j};
         elseif p==2
@@ -84,6 +95,7 @@ while i<= length(test_text)
         end
     end
     total(i) = length(split_eng);  
+    i = i+1;
 end
 
-accurancy = correct./total;
+accuracy = correct./total;
