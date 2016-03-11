@@ -1,15 +1,23 @@
-function logProb = GTprob(sentence, LM, type, delta, vocabSize)
+function logProb = GTprob(sentence, reconsE)
+%logProb = -Inf;
+words = strsplit(' ', sentence);
 
-    logProb = -Inf;
-    words = strsplit(' ', sentence);
-    
-    % TODO: the student implements the following
-	logProb = 0;
-	for i=1:(length(words) - 1)
-        unicount = LM.uni.(words{i});
-        bicount = LM.bi.(words{i}).(words{i+1});
-        logProb = logprob + log2(unicount/bicount);
+% TODO: the student implements the following
+logProb = 0;
+for i=1:(length(words)-1)
+    if (isfield(reconsE.uni, words{i}))
+        unicount = reconsE.uni.(words{i});
+    else
+        unicount = 1;
     end
+    if (isfield(reconsE.bi, words{i})
+        if (isfield(reconsE.bi.(words{i}), words{i+1}))
+            bicount = reconsE.bi.(words{i}).(words{i+1});
+        end   
+    else
+        bicount = reconsE.bi.(words{i}).(words{i+1});
+    end
+    logProb = logProb + log2(bicount/unicount);
 end
-    % TODO: once upon a time there was a curmudgeonly orangutan named Jub-Jub.
+disp(logProb)
 return
