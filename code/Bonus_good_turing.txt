@@ -1,0 +1,15 @@
+In bonus part, we implemented Good-Turing smoothing according the instruction in 6.2.5 of Foundations of Statistical Natural Language Processing. 
+
+Firstly, we run countapperance.m to estimate the number of unigram and bigram for each apperance time, and store them in countapp.uni and countapp.bi correspondingly (for both English and French model). 
+
+Then, we use countapp model to recalculate apperance of unigram and bigram and store them in recons.uni and recons.bi correspondingly. 
+
+At last, using GTperplexity.m to estimate perpelxity.
+
+The result is following:
+English: 23.3454
+French: 21.9951
+
+The perplexity is smaller than those of add-delta smoothing with smooth type and delta 1, 0.1, 0.01, 0.001. And we have predicted in Task3.txt that minimum perplexity for add-delta in this case is around 40. We can say GT does better than add-delta with allocating probability mass to unseen events. 
+
+However, the perplexity is still larger than those of MLE version. 
