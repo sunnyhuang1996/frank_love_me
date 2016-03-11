@@ -53,8 +53,21 @@ maxIter      = 10;
 % for i=1:length(ibm_translation)
 %     disp(ibm_translation{i})
 % end
+test_text = {};
+fre_file = fopen(strcat(testDir, '.f'));
+i = 1;
+
+while (~feof(fre_file))
+    test_text{i} = fgets(fre_file);
+    test_text{i} = regexprep( test_text{i}, '''', '''''');
+    i = i + 1;
+end
+fclose(fre_file);
+
+
+
 LME = importdata('~/modelE.mat');
-AMFE = importdata('~/frank_love_me/code/am.mat');
+AMFE = importdata('~/frank_love_me/code/am_30K.mat');
 
 google_result = upload(strcat(testDir, '.google.e'), 'e');
 hansard_result = upload(strcat(testDir, '.e'), 'e');
