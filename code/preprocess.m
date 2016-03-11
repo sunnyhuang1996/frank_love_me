@@ -37,13 +37,16 @@ function outSentence = preprocess( inSentence, language )
   outSentence = regexprep( outSentence, '(''|")(\w+)(''|")', '$1 $2 $3');
   switch language
   case 'e'
-    % TODO: your code here
+    % have dealt with above
 
   case 'f'
-    %disp(outSentence)
     outSentence = regexprep( outSentence, '([l|qu|j|t|d|s|q|w|r|y|p|g|h|k|z|x|v|b|n|m])''(\w+)', '$1'' $2');
     outSentence = regexprep( outSentence, '(\w+)''(on|il)', '$1'' $2');
     outSentence = regexprep( outSentence, 'd'' ([abord|accord|ailleurs|habitude])', 'd''$1');
   end
   % change unpleasant characters to codes that can be keys in dictionaries
   outSentence = convertSymbols( outSentence );
+<<<<<<< HEAD
+  disp(outSentence)
+=======
+>>>>>>> 0e295290640342b7d8b88f4cc67b80bf95f99874

@@ -108,6 +108,15 @@ for align_model = 1:length(AMFE_name)
 
     precision(:, :, align_model) = correct./total;
 
+<<<<<<< HEAD
+for i=1:length(eng_result)
+    field = fieldnames(reference);
+    for ref_index =1:numel(field)
+        ref_len =  length(strsplit(' ', reference.(field{ref_index}){i}));
+        disp(ref_len)
+        if abs(min_brevity(i) - length(eng_result{i})) > abs(length(eng_result{i}) - ref_len)
+            min_brevity(i) = ref_len;
+=======
     for i=1:length(eng_result)
 
         field = fieldnames(reference);
@@ -124,6 +133,7 @@ for align_model = 1:length(AMFE_name)
            min_brevity(align_model, i) =  exp(1-(min_brevity(align_model, i) / eng_len));
         else
            min_brevity(align_model, i) = 1;
+>>>>>>> 0e295290640342b7d8b88f4cc67b80bf95f99874
         end
     end
     

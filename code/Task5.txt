@@ -1,3 +1,8 @@
+the BLEU result by decode2 is as following, it's represented as a 3*25*4 matrix.
+first row is for unigram, second row is for bigram, and third is for trigram.
+ith column represents ith sentence. 
+jth 3*25 matrix is for jth alignment model (1k, 10k, 15k, 30k).
+
 (:,:,1) =
 
   Columns 1 through 15
@@ -11,6 +16,8 @@
     0.2206    0.1667    0.6000    0.3333    0.2857    0.3275    0.4286    0.5455    0.4167         0
          0         0    0.4472         0         0    0.2316    0.2474    0.2227    0.3227         0
          0         0    0.3420         0         0         0         0         0         0         0
+
+
 
 
 (:,:,2) =
@@ -28,6 +35,8 @@
          0         0    0.3420    0.2394         0    0.2975         0    0.2508    0.2184         0
 
 
+
+
 (:,:,3) =
 
   Columns 1 through 15
@@ -43,6 +52,8 @@
          0         0    0.4143    0.2394         0    0.2975         0    0.2508    0.2184         0
 
 
+
+
 (:,:,4) =
 
   Columns 1 through 15
@@ -56,3 +67,12 @@
     0.3309    0.3333    0.7333    0.5556    0.4286    0.4912    0.4286    0.6364    0.4167    0.2000
     0.1911         0    0.6254    0.3514    0.2474    0.4011    0.2474    0.4166    0.3227         0
          0         0    0.5672    0.2394         0    0.2975         0    0.2508         0         0
+	 
+	 
+	 
+
+In general, the score is better when p is small and decreses with p enlarging. This is becuase translation need to translate multiple words precisely and get the the correct order as well when testing with multi-gram. At the same time, unigram testing only evaluates whether single word gets translated correctly, which definitely increases the precision and score. 
+
+Also, the score increses as the train data size increases, because with larger training data, we can learn more words(unigram) and phrase(bigram and trigram), and increase the probability of frequently-used phrase and lower the probability of non-frequently-used phrase. Thus, we can predict translation better. 
+
+
