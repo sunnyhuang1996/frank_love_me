@@ -85,8 +85,7 @@ function [eng, fre] = read_hansard(mydir, numSentences)
         fre_file_name = strrep(eng_file_name, '.e', '.f');
         fre_file = fopen([mydir, fre_file_name]);
         eng_file = fopen([mydir, eng_file_name]);
-        disp(fre_file)
-        disp([mydir, fre_file_name])
+
         while (~feof(eng_file)) && (line_counter <= numSentences)
             curr_eng_line = fgets(eng_file);
             eng{line_counter} = strsplit(' ', preprocess(curr_eng_line, 'e'));
@@ -121,7 +120,6 @@ function AM = initialize(eng, fre)
     storage = struct();
 
     for line_index=1:length(eng)
-        %disp(eng{line_index})
         for element_index=2:length(eng{line_index})-1
         %for element_index=1:length(eng{line_index})
             if  ~isfield(AM, eng{line_index}{element_index})
@@ -150,11 +148,6 @@ function AM = initialize(eng, fre)
     AM.SENTSTART.SENTSTART = 1;
     AM.SENTEND.SENTEND = 1;
     
-    fields = fieldnames(AM);
-    for i=1:numel(fields)
-        disp(fields{i})
-        disp(AM.(fields{i}))
-    end
 end
 
 function t = em_step(t, eng, fre)
@@ -167,13 +160,13 @@ function t = em_step(t, eng, fre)
       % get count of each unique english/french word in this line
       [uni_fre, i_fre, j_fre] = unique(fre{line_index}(2:end-1));
       fre_count = hist(j_fre, 1:max(j_fre));
-      %disp(uni_fre)
+
       [uni_eng, i_eng, j_eng] = unique(eng{line_index}(2:end-1));
       eng_count = hist(j_eng, 1:max(j_eng));
-      %disp(uni_eng)
+
       for fre_index = 1:length(uni_fre)
           fre_word_count = fre_count(fre_index);
-          %disp(fre_word_count)
+
           denom_c  = 0;
           for eng_index = 1:length(uni_eng)
 
@@ -186,8 +179,6 @@ function t = em_step(t, eng, fre)
                   tcount.(uni_eng{eng_index}).(uni_fre{fre_index}) = 0;
               end
               if ~isfield(total, uni_eng{eng_index})
-                  %disp('Initialize')
-                  %disp(uni_eng{eng_index})
                  total.(uni_eng{eng_index}) = 0;
               end
           end
@@ -209,20 +200,8 @@ function t = em_step(t, eng, fre)
  for eng_index = 1:numel(fields)
     nest_fields = fieldnames(t.(fields{eng_index})); 
     for fre_index = 1:numel(nest_fields)
-        %disp(fields{eng_index})
-        %disp(nest_fields{fre_index})
-        %disp(tcount.(fields{eng_index}).(nest_fields{fre_index}))
-        %disp(total.(fields{eng_index}))
-        %disp('-------------------------------')
         t.(fields{eng_index}).(nest_fields{fre_index}) =  tcount.(fields{eng_index}).(nest_fields{fre_index}) / total.(fields{eng_index}); 
     end
- end
- 
- display = fieldnames(t);
- %disp(display)
- for i=1:numel(display)
-     disp(display{i})
-     disp(t.(display{i}))
  end
  
 end
