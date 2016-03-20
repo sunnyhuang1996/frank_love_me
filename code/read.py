@@ -28,6 +28,7 @@ def read_data(filename):
 
     #RP1
     RP1 = (np.sum((W1*RCC), axis=1))/(np.sum(np.absolute(W1), axis=1))
+    print ("rp1 ---> " + scipy.stats.kurtosis(RP1, fisher=False) )
     #print(RP1.shape)
 
 
@@ -87,7 +88,7 @@ def read_data(filename):
                a[11]*(RVP/avg_RVP)*((RCO.transpose()-avg_RCO).transpose())/N
 
         RP2 = (np.sum((W2 * ROC), axis=1)) / (np.sum(np.absolute(W2), axis=1))
-              
+        print ("rp2 ---> " + scipy.stats.kurtosis(RP2, fisher=False) )      
         avg_RP2 = np.mean(RP2, axis = 0)
         std_RP2 = np.std(RP2, axis = 0)
         #np.savetxt("W2.csv", W2, delimiter=",")
@@ -125,7 +126,7 @@ def read_data(filename):
             if (np.sum(np.absolute((W3)[i] * FILL3[i]))>0):
                 RP3[i] = (np.sum(W3[i] * ROC[i] * FILL3[i])) / np.sum(np.absolute((W3)[i] * FILL3[i]))    
         
-              
+        print ("rp3 ---> " + scipy.stats.kurtosis(RP3, fisher=False) )      
         avg_RP3 = np.mean(RP3, axis = 0)
         std_RP3 = np.std(RP3, axis = 0)
         #np.savetxt("W3.csv", W3, delimiter=",")
@@ -175,13 +176,13 @@ def read_data(filename):
             if (np.sum(np.absolute((W4)[i] * FILL4[i]))>0):
                 RP4[i] = (np.sum(W4[i] * ROC[i] * FILL4[i])) / np.sum(np.absolute((W4)[i] * FILL4[i]))    
         
-              
+        print ("rp4 ---> " + scipy.stats.kurtosis(RP4, fisher=False) )
         avg_RP4 = np.mean(RP4, axis = 0)
         std_RP4 = np.std(RP4, axis = 0)
-        np.savetxt("W4.csv", W4, delimiter=",")
+        #np.savetxt("W4.csv", W4, delimiter=",")
         return - (avg_RP4 / std_RP4)
 
-    a2 = np.array([2, 3, 4, 5, 6, 7, 7, 8, 8, 9, 9, 10, 11, 12])
+    a2 = np.array([2, -3, 4, 5, -6, -7, 7, -8, 8,-9, 9, -10, 10, -11])
     a3 = np.array([ 7279.95544321,  -920.15267051,  8266.02449632, -1054.94715582, -3849.09423177, -3940.24710748])
     
     solution_c = opt.minimize(sharpe_ratio_4, a2, method = 'BFGS')
