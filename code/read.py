@@ -112,7 +112,7 @@ def read_data(filename):
         std_RP2 = np.std(RP2, axis = 0)
         print ("rp2 avg log---> ", np.mean(np.log(RP2 + 1), axis = 0))
         print ("rp2 std log---> ", np.std(np.log(RP2 + 1), axis = 0)) 
-        print ("rp2 corr--->", np.corrcoef(avg_RCC, RP2)[0, 1])
+        print ("rp2 corr--->", np.corrcoef(avg_ROC, RP2)[0, 1])
         #np.savetxt("W2.csv", W2, delimiter=",")
 
         return - (avg_RP2 / std_RP2)
@@ -160,7 +160,7 @@ def read_data(filename):
         std_RP3 = np.std(RP3, axis = 0)
         print ("rp3 avg log---> ", np.mean(np.log(RP3 + 1), axis = 0))
         print ("rp3 std log---> ", np.std(np.log(RP3 + 1), axis = 0))     
-        print ("rp3 corr--->", np.corrcoef(avg_RCC, RP3)[0, 1])
+        print ("rp3 corr--->", np.corrcoef(avg_ROC, RP3)[0, 1])
         #np.savetxt("W3.csv", W3, delimiter=",")
         return - (avg_RP3 / std_RP3)
 
@@ -221,7 +221,7 @@ def read_data(filename):
         
         print ("rp4 avg log---> ", np.mean(np.log(RP4 + 1), axis = 0))
         print ("rp4 std log---> ", np.std(np.log(RP4 + 1), axis = 0))
-        print ("rp4 corr--->", np.corrcoef(avg_RCC, RP4)[0, 1])
+        print ("rp4 corr--->", np.corrcoef(avg_ROC, RP4)[0, 1])
         #np.savetxt("W4.csv", W4, delimiter=",")
         return - (avg_RP4 / std_RP4)
 
