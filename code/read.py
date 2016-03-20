@@ -42,6 +42,8 @@ def read_data(filename):
     print(part1_start, part1_end)
     plt.plot(RP1)
     plt.plot([part1_end, part1_start], [RP1[part1_end], RP1[part1_start]], 'o', color='Red', markersize=10)    
+    plt.xlabel('date')
+    plt.ylabel('RP1(t)')
     '''
     #======================== part 2 ==============================
 
@@ -107,6 +109,8 @@ def read_data(filename):
         print(part2_start, part2_end)
         plt.plot(RP2)
         plt.plot([part2_end, part2_start], [RP2[part2_end], RP2[part2_start]], 'o', color='Red', markersize=10)   
+        plt.xlabel('date')
+        plt.ylabel('RP2(t)')    
         '''
         avg_RP2 = np.mean(RP2, axis = 0)
         std_RP2 = np.std(RP2, axis = 0)
@@ -155,6 +159,8 @@ def read_data(filename):
         print(part3_start, part3_end)
         plt.plot(RP3)
         plt.plot([part3_end, part3_start], [RP3[part3_end], RP3[part3_start]], 'o', color='Red', markersize=10)   
+        plt.xlabel('date')
+        plt.ylabel('RP3(t)')          
         '''
         avg_RP3 = np.mean(RP3, axis = 0)
         std_RP3 = np.std(RP3, axis = 0)
@@ -209,13 +215,14 @@ def read_data(filename):
                 RP4[i] = (np.sum(W4[i] * ROC[i] * FILL4[i])) / np.sum(np.absolute((W4)[i] * FILL4[i]))    
         print ("rp4 skew---> ", stat.skew(RP4) )   
         print ("rp4 kurt---> ", stat.kurtosis(RP4) )
-        '''
+        
         part4_end = np.argmax(np.maximum.accumulate(RP4) - RP4) # end of the period
         part4_start = np.argmax(RP4[:part4_end]) # start of period
         print(part4_start, part4_end)
         plt.plot(RP4)
         plt.plot([part4_end, part4_start], [RP4[part4_end], RP4[part4_start]], 'o', color='Red', markersize=10) 
-        '''
+        plt.xlabel('date')
+        plt.ylabel('RP4(t)')             
         avg_RP4 = np.mean(RP4, axis = 0)
         std_RP4 = np.std(RP4, axis = 0)
         
